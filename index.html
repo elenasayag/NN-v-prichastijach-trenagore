@@ -281,7 +281,7 @@
       <div class="header-tag">Русский язык</div>
       <h1>Н и НН в причастиях и отглагольных прилагательных</h1>
       <p class="subtitle">Подробный школьный интерактивный тренажёр с правилами, подсказками и моментальной проверкой.</p>
-      <button class="btn-main" onclick="startTrainer()">Начинаем</button>
+      <button id="btn-start" class="btn-main">Начинаем</button>
     </div>
 
     <!-- Страница тренажера -->
@@ -296,9 +296,7 @@
         <div id="word-display" class="word-display">Загрузка...</div>
       </div>
 
-      <div id="options-grid" class="options-grid">
-        <!-- Кнопки с ответами рендерятся динамически -->
-      </div>
+      <div id="options-grid" class="options-grid"></div>
 
       <div id="rule-box" class="rule-box">
         <div class="rule-title">💡 Грамматическое правило:</div>
@@ -306,8 +304,8 @@
       </div>
 
       <div class="nav-controls">
-        <button id="btn-prev" class="btn-nav" onclick="prevQuestion()">← Назад</button>
-        <button id="btn-next" class="btn-nav" onclick="nextQuestion()">Вперёд →</button>
+        <button id="btn-prev" class="btn-nav">← Назад</button>
+        <button id="btn-next" class="btn-nav">Вперёд →</button>
       </div>
     </div>
 
@@ -318,14 +316,12 @@
       <p class="subtitle">Тренажёр успешно пройден. Вот твой результат ответов с первой попытки:</p>
       <div id="final-score" class="score-badge">0 / 0</div>
       <p class="subtitle" style="font-size: 0.95rem; opacity: 0.8;">Все правила и исключения темы повторены и закреплены!</p>
-      <button class="btn-main" onclick="restartTrainer()">Пройдём ещё раз?</button>
+      <button id="btn-restart" class="btn-main">Пройдём ещё раз?</button>
     </div>
   </div>
 
   <script>
-    // Тщательно проверенная база данных вопросов (42 карточки - все правила и исключения без опечаток)
     const questionsDatabase = [
-      // 1. Приставки (кроме НЕ-)
       {
         word: "Высуш...ый гербарий",
         options: [{ text: "НН", correct: true }, { text: "Н", correct: false }],
@@ -346,8 +342,6 @@
         options: [{ text: "НН", correct: true }, { text: "Н", correct: false }],
         rule: "<b>Пишется НН:</b> есть приставка <i>ПРО-</i> в полном причастии."
       },
-
-      // 2. Зависимые слова (Причастный оборот)
       {
         word: "Жар...ая в масле рыба",
         options: [{ text: "НН", correct: true }, { text: "Н", correct: false }],
@@ -368,8 +362,6 @@
         options: [{ text: "НН", correct: true }, { text: "Н", correct: false }],
         rule: "<b>Пишется НН:</b> есть зависимое слово (<i>на солнце</i>)."
       },
-
-      // 3. Суффиксы -ОВА- / -ЕВА- / -ИРОВА-
       {
         word: "Марин...ованный огурец",
         options: [{ text: "НН", correct: true }, { text: "Н", correct: false }],
@@ -390,8 +382,6 @@
         options: [{ text: "НН", correct: true }, { text: "Н", correct: false }],
         rule: "<b>Пишется НН:</b> есть суффикс <i>-ОВА-</i> (прессовать)."
       },
-
-      // 4. Бесприставочные отглагольные причастия совершенного вида
       {
         word: "Реш...ая задача",
         options: [{ text: "НН", correct: true }, { text: "Н", correct: false }],
@@ -412,8 +402,6 @@
         options: [{ text: "НН", correct: true }, { text: "Н", correct: false }],
         rule: "<b>Пишется НН:</b> образовано от глагола совершенного вида (<i>пленить</i>)."
       },
-
-      // 5. Отглагольные прилагательные (несов. вид, без приставок и зав. слов) - 1 Н
       {
         word: "Жар...ая рыба",
         options: [{ text: "Н", correct: true }, { text: "НН", correct: false }],
@@ -449,8 +437,6 @@
         options: [{ text: "Н", correct: true }, { text: "НН", correct: false }],
         rule: "<b>Пишется Н:</b> бесприставочное отглагольное прилагательное (<i>рвать</i>)."
       },
-
-      // 6. Краткие формы причастий - ВСЕГДА 1 Н
       {
         word: "Задача реш...а",
         options: [{ text: "Н", correct: true }, { text: "НН", correct: false }],
@@ -481,8 +467,6 @@
         options: [{ text: "Н", correct: true }, { text: "НН", correct: false }],
         rule: "<b>Пишется Н:</b> краткое причастие."
       },
-
-      // 7. Исключения из правила на -ОВА- / -ЕВА-
       {
         word: "Ков...аный меч",
         options: [{ text: "Н", correct: true }, { text: "НН", correct: false }],
@@ -493,8 +477,6 @@
         options: [{ text: "Н", correct: true }, { text: "НН", correct: false }],
         rule: "<b>Исключение! Пишется Н:</b> слово <i>жеваный</i> пишется с одной Н (если нет приставок и зависимых слов)."
       },
-
-      // 8. Карточки-исключения со словарными словами
       {
         word: "Нев...иданный урожай",
         options: [{ text: "НН", correct: true }, { text: "Н", correct: false }],
@@ -540,8 +522,6 @@
         options: [{ text: "НН", correct: true }, { text: "Н", correct: false }],
         rule: "<b>Словарное исключение! Пишется НН:</b> <i>данный</i>."
       },
-
-      // 9. Особенные случаи
       {
         word: "Ран...ый боец",
         options: [{ text: "Н", correct: true }, { text: "НН", correct: false }],
@@ -559,7 +539,6 @@
     let hasAttemptedCurrent = false;
     let answeredCorrectlyCurrent = false;
 
-    // Элементы UI
     const screenStart = document.getElementById("screen-start");
     const screenQuiz = document.getElementById("screen-quiz");
     const screenResult = document.getElementById("screen-result");
@@ -574,6 +553,7 @@
 
     function startTrainer() {
       screenStart.style.display = "none";
+      screenResult.style.display = "none";
       screenQuiz.style.display = "block";
       currentIndex = 0;
       firstTrySuccess = 0;
@@ -590,3 +570,8 @@
     }
 
     function loadQuestion(index) {
+      hasAttemptedCurrent = false;
+      answeredCorrectlyCurrent = false;
+      ruleBox.style.display = "none";
+      
+      const q = que
