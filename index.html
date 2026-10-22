@@ -281,7 +281,7 @@
       <div class="header-tag">Русский язык</div>
       <h1>Н и НН в причастиях и отглагольных прилагательных</h1>
       <p class="subtitle">Подробный школьный интерактивный тренажёр с правилами, подсказками и моментальной проверкой.</p>
-      <button id="btn-start" class="btn-main">Начинаем</button>
+      <button class="btn-main" onclick="startTrainer()">Начинаем</button>
     </div>
 
     <!-- Страница тренажера -->
@@ -304,8 +304,8 @@
       </div>
 
       <div class="nav-controls">
-        <button id="btn-prev" class="btn-nav">← Назад</button>
-        <button id="btn-next" class="btn-nav">Вперёд →</button>
+        <button id="btn-prev" class="btn-nav" onclick="prevQuestion()">← Назад</button>
+        <button id="btn-next" class="btn-nav" onclick="nextQuestion()">Вперёд →</button>
       </div>
     </div>
 
@@ -316,7 +316,7 @@
       <p class="subtitle">Тренажёр успешно пройден. Вот твой результат ответов с первой попытки:</p>
       <div id="final-score" class="score-badge">0 / 0</div>
       <p class="subtitle" style="font-size: 0.95rem; opacity: 0.8;">Все правила и исключения темы повторены и закреплены!</p>
-      <button id="btn-restart" class="btn-main">Пройдём ещё раз?</button>
+      <button class="btn-main" onclick="startTrainer()">Пройдём ещё раз?</button>
     </div>
   </div>
 
@@ -537,24 +537,11 @@
     let currentIndex = 0;
     let firstTrySuccess = 0;
     let hasAttemptedCurrent = false;
-    let answeredCorrectlyCurrent = false;
-
-    const screenStart = document.getElementById("screen-start");
-    const screenQuiz = document.getElementById("screen-quiz");
-    const screenResult = document.getElementById("screen-result");
-    const wordDisplay = document.getElementById("word-display");
-    const optionsGrid = document.getElementById("options-grid");
-    const ruleBox = document.getElementById("rule-box");
-    const ruleText = document.getElementById("rule-text");
-    const questionCounter = document.getElementById("question-counter");
-    const progressFill = document.getElementById("progress-fill");
-    const btnPrev = document.getElementById("btn-prev");
-    const btnNext = document.getElementById("btn-next");
 
     function startTrainer() {
-      screenStart.style.display = "none";
-      screenResult.style.display = "none";
-      screenQuiz.style.display = "block";
+      document.getElementById("screen-start").style.display = "none";
+      document.getElementById("screen-result").style.display = "none";
+      document.getElementById("screen-quiz").style.display = "block";
       currentIndex = 0;
       firstTrySuccess = 0;
       loadQuestion(currentIndex);
@@ -571,7 +558,33 @@
 
     function loadQuestion(index) {
       hasAttemptedCurrent = false;
-      answeredCorrectlyCurrent = false;
-      ruleBox.style.display = "none";
+      document.getElementById("rule-box").style.display = "none";
       
-      const q = que
+      const q = questionsDatabase[index];
+      document.getElementById("word-display").innerHTML = q.word;
+      document.getElementById("question-counter").innerText = `Вопрос ${index + 1} из ${questionsDatabase.length}`;
+      
+      const progressPercent = ((index + 1) / questionsDatabase.length) * 100;
+      document.getElementById("progress-fill").style.width = `${progressPercent}%`;
+
+      document.getElementById("btn-prev").disabled = (index === 0);
+      document.getElementById("btn-next").disabled = false;
+
+      const shuffledOptions = shuffleArray(q.options);
+      const optionsGrid = document.getElementById("options-grid");
+      optionsGrid.innerHTML = "";
+      
+      shuffledOptions.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.className = "btn-option";
+        btn.innerText = opt.text;
+        btn.onclick = function() { handleAnswer(this, opt.correct, q.rule); };
+        optionsGrid.appendChild(btn);
+      });
+    }
+
+    function handleAnswer(selectedBtn, isCorrect, rule) {
+      const allButtons = document.querySelectorAll(".btn-option");
+
+      if (isCorrect) {
+        selectedBtn.classList.a
